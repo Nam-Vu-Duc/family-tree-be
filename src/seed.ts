@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { Person } from './models/Person.js';
 import { Suggestion } from './models/Suggestion.js';
+import User from './models/User.js';
 
 dotenv.config();
 
@@ -333,9 +334,21 @@ async function seedDatabase() {
 
     // Clear existing data
     console.log('🧹 Clearing existing data...');
+    await User.deleteMany({});
     await Person.deleteMany({});
     await Suggestion.deleteMany({});
     console.log('✅ Existing data cleared\n');
+
+    // Create default admin user
+    console.log('👤 Creating default admin user...');
+    const adminUser = await User.create({
+      username: 'admin',
+      email: 'admin@example.com',
+      password: 'admin123',
+      role: 'admin',
+      isActive: true,
+    });
+    console.log(`✅ Admin user created (ID: ${adminUser._id})\n`);
 
     // Insert persons and build ID map
     console.log('👥 Importing persons...');
@@ -416,9 +429,13 @@ async function seedDatabase() {
     console.log('🎉 Database seeding completed!');
     console.log('═══════════════════════════════════════');
     console.log(`\n📊 Statistics:`);
+    console.log(`   • Admin Users: 1`);
     console.log(`   • Persons: ${samplePersonsData.length}`);
     console.log(`   • Suggestions: ${sampleSuggestionsData.length}`);
-    console.log(`\n Database: ${mongoUri.split('/').pop()?.split('?')[0]}`);
+    console.log(`\n📦 Database: ${mongoUri.split('/').pop()?.split('?')[0]}`);
+    console.log('\n✅ You can now login with:');
+    console.log('   Username: admin');
+    console.log('   Password: admin123\n');
     
   } catch (error) {
     console.error('❌ Error seeding database:', error);

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './db.js';
+import authRouter from './routes/auth.js';
 import personsRouter from './routes/persons.js';
 import familyTreesRouter from './routes/familyTrees.js';
 import suggestionsRouter from './routes/suggestions.js';
@@ -29,6 +30,9 @@ app.get('/api/health', (req, res) => {
 try {
   await connectDB();
 
+  // Auth routes (available even without full DB connection)
+  app.use('/api/auth', authRouter);
+
   // Routes (only available after successful DB connection)
   app.use('/api/persons', personsRouter);
   app.use('/api/family-trees', familyTreesRouter);
@@ -36,6 +40,11 @@ try {
   
   console.log('✅ API routes initialized');
   console.log('✍️  Available endpoints:');
+  console.log(`     POST   /api/auth/register  - Register new admin user`);
+  console.log(`     POST   /api/auth/login     - Login with credentials`);
+  console.log(`     GET    /api/auth/verify    - Verify token`);
+  console.log(`     PUT    /api/auth/profile   - Update profile`);
+  console.log(`     GET    /api/auth/users     - Get all users (Admin only)`);
   console.log(`     GET    /api/persons         - Get all persons`);
   console.log(`     POST   /api/persons         - Create person`);
   console.log(`     GET    /api/family-trees    - Get all family trees`);
@@ -65,6 +74,11 @@ app.listen(PORT, () => {
   console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
   console.log('\n💡 Available endpoints:');
   console.log(`   GET  /api/health          - Server health check`);
+  console.log(`   POST /api/auth/register   - Register new admin user`);
+  console.log(`   POST /api/auth/login      - Login with credentials`);
+  console.log(`   GET  /api/auth/verify     - Verify token (requires auth)`);
+  console.log(`   PUT  /api/auth/profile    - Update profile (requires auth)`);
+  console.log(`   GET  /api/auth/users      - Get all users (requires admin auth)`);
   console.log(`   GET  /api/persons         - Get all persons`);
   console.log(`   GET  /api/family-trees    - Get all family trees`);
   console.log(`   GET  /api/suggestions     - Get all suggestions\n`);
