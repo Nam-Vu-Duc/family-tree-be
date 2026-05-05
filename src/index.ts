@@ -6,6 +6,7 @@ import authRouter from './routes/auth.js';
 import personsRouter from './routes/persons.js';
 import familyTreesRouter from './routes/familyTrees.js';
 import suggestionsRouter from './routes/suggestions.js';
+import passcodeRouter from './routes/passcode.js';
 
 // Load environment variables
 dotenv.config();
@@ -13,9 +14,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Parse CORS origins from environment variable (comma-separated)
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+  : ['http://localhost:8080'];
+
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+  origin: corsOrigins,
   credentials: true,
 }));
 app.use(express.json());
@@ -25,6 +31,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
 });
+
+// Passcode routes (works without DB)
+app.use('/api/passcode', passcodeRouter);
 
 // Connect to MongoDB and setup routes
 try {
@@ -40,6 +49,8 @@ try {
   
   console.log('✅ API routes initialized');
   console.log('✍️  Available endpoints:');
+  console.log(`     POST   /api/passcode/verify - Verify website passcode`);
+  console.log(`     GET    /api/passcode/check  - Check if passcode is enabled`);
   console.log(`     POST   /api/auth/register  - Register new admin user`);
   console.log(`     POST   /api/auth/login     - Login with credentials`);
   console.log(`     GET    /api/auth/verify    - Verify token`);
