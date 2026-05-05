@@ -91,10 +91,10 @@ UserSchema.methods.generateToken = function (): string {
       email: this.email,
       role: this.role,
     },
-    process.env.JWT_SECRET || 'your-secret-key-change-in-env',
+    (process.env.JWT_SECRET || 'your-secret-key-change-in-env') as string,
     {
       expiresIn: process.env.JWT_EXPIRATION || '7d',
-    }
+    } as any
   );
   return token;
 };
